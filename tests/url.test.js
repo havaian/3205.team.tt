@@ -64,26 +64,25 @@ describe("URL Shortener API", () => {
 
   describe("Redirection and Analytics", () => {
     it("should redirect and track analytics correctly", async () => {
-      const createResponse = await request(app)
-        .post("/api/shorten")
-        .send({
-          originalUrl: "https://example.com"
-        });
-  
+      const createResponse = await request(app).post("/api/shorten").send({
+        originalUrl: "https://example.com",
+      });
+
       expect(createResponse.status).toBe(201);
       expect(createResponse.body).toHaveProperty("shortUrl");
-      
+
       // Extract shortUrl from the full URL using global URL object
-      const shortUrl = createResponse.body.shortUrl.split('/').pop();
-  
+      const shortUrl = createResponse.body.shortUrl.split("/").pop();
+
       // Visit the URL multiple times
       await request(app).get(`/${shortUrl}`).redirects(1);
       await request(app).get(`/${shortUrl}`).redirects(1);
       await request(app).get(`/${shortUrl}`).redirects(1);
-  
-      const analyticsResponse = await request(app)
-        .get(`/api/analytics/${shortUrl}`);
-  
+
+      const analyticsResponse = await request(app).get(
+        `/api/analytics/${shortUrl}`
+      );
+
       expect(analyticsResponse.status).toBe(200);
       expect(analyticsResponse.body.clickCount).toBe(3);
       expect(Array.isArray(analyticsResponse.body.recentVisitors)).toBeTruthy();

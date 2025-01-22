@@ -8,8 +8,6 @@ services:
       - ./.env
     depends_on:
       - mongo
-    networks:
-      - url-shortener-network
 
   mongo:
     image: mongo:latest
@@ -17,12 +15,6 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
-    networks:
-      - url-shortener-network
-
-networks:
-  url-shortener-network:
-    driver: bridge
 
 volumes:
   mongodb_data:

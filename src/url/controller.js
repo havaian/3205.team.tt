@@ -7,28 +7,30 @@ exports.createShortUrl = async (req, res) => {
     const { originalUrl, alias, expiresAt } = req.body;
 
     if (!originalUrl) {
-      console.error('Error: Original URL is missing');
-      return res.status(400).json({ error: 'Original URL is required' });
+      console.error("❌Error: Original URL is missing");
+      return res.status(400).json({ error: "Original URL is required" });
     }
 
     // Validate URL format first
     try {
       new globalThis.URL(originalUrl); // Using global URL object
     } catch (err) {
-      console.error(`Error: Invalid URL format for ${originalUrl}`, err);
-      return res.status(400).json({ error: 'Invalid URL format' });
+      console.error(`❌Error: Invalid URL format for ${originalUrl}`, err);
+      return res.status(400).json({ error: "Invalid URL format" });
     }
 
     // Check if alias is provided and available
     if (alias) {
       if (alias.length > 20) {
-        console.error(`Error: Alias ${alias} exceeds maximum length`);
-        return res.status(400).json({ error: 'Alias must be 20 characters or less' });
+        console.error(`❌Error: Alias ${alias} exceeds maximum length`);
+        return res
+          .status(400)
+          .json({ error: "Alias must be 20 characters or less" });
       }
       const existingAlias = await URL.findOne({ alias });
       if (existingAlias) {
-        console.error(`Error: Alias ${alias} already exists`);
-        return res.status(400).json({ error: 'Alias already in use' });
+        console.error(`❌Error: Alias ${alias} already exists`);
+        return res.status(400).json({ error: "Alias already in use" });
       }
     }
 
@@ -51,11 +53,13 @@ exports.createShortUrl = async (req, res) => {
       }
 
       if (!isUnique) {
-        console.error('Error: Could not generate unique short URL');
-        return res.status(500).json({ error: 'Could not generate unique short URL' });
+        console.error("❌Error: Could not generate unique short URL");
+        return res
+          .status(500)
+          .json({ error: "Could not generate unique short URL" });
       }
     }
-    
+
     const url = new URL({
       originalUrl,
       shortUrl,
@@ -65,18 +69,19 @@ exports.createShortUrl = async (req, res) => {
 
     await url.save();
 
-    console.log(`Success: Created short URL ${shortUrl} for ${originalUrl}`);
+    console.log(`✅ Short URL ${shortUrl} for ${originalUrl}`);
     res.status(201).json({
-      shortUrl: `${req.protocol}://${req.get('host')}/${shortUrl}`,
+      shortUrl: `${req.protocol}://${req.get("host")}/${shortUrl}`,
       originalUrl,
       createdAt: url.createdAt,
       expiresAt: url.expiresAt,
     });
   } catch (error) {
-    console.error('Server Error:', error);
-    res.status(500).json({ 
-      error: 'Server error', 
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    console.error("❌Server Error:", error);
+    res.status(500).json({
+      error: "Server error",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
